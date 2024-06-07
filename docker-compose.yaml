@@ -34,6 +34,18 @@ services:
     volumes:
       - pgadmin-data:/var/lib/pgadmin
 
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_storage:/data
+    env_file:
+      - .env
+    command: server --console-address ":9001" /data
+
 volumes:
   db-data:
   pgadmin-data:
+  minio_storage: {}
