@@ -1,9 +1,14 @@
 #!/bin/bash
 
 # Apply database migrations
-echo "Apply database migrations"
-python src/manage.py migrate
+status=1
+while [ $status != 0 ]; do
+    echo "Try apply database migrations"
+    python3 src/manage.py migrate
+    status=$?
+    sleep 0.1
+done
 
 # Start server
 echo "Starting server"
-python src/manage.py runserver 0.0.0.0:8000
+python3 src/manage.py runserver 0.0.0.0:8000
