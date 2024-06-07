@@ -7,6 +7,9 @@ services:
       - 1221
     env_file:
       - .env
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    restart: unless-stopped
 
   app:
     build:
@@ -19,3 +22,18 @@ services:
       - 9999:8000
     depends_on:
       - db
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    env_file:
+      - .env
+    ports:
+      - 11222:80
+    restart: always
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+volumes:
+  db-data:
+  pgadmin-data:
