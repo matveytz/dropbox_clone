@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16
+    container_name: postgres_dropbox_clone
+    command: -p 1221
+    expose:
+      - 1221
+    env_file:
+      - .env
+
+  app:
+    build:
+      context: .
+    env_file:
+      - .env
+    container_name: app_dropbox_clone
+    command: ["/dropbox_clone/docker/app.sh"]
+    ports:
+      - 9999:8000
+    depends_on:
+      - db
