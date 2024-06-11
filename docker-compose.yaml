@@ -36,11 +36,12 @@ services:
 
   minio:
     image: minio/minio
+    container_name: minio
     ports:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - minio_storage:/data
+      - minio_storage:/mnt/minio/data
     env_file:
       - .env
     command: server --console-address ":9001" /data
@@ -48,4 +49,4 @@ services:
 volumes:
   db-data:
   pgadmin-data:
-  minio_storage: {}
+  minio_storage:
