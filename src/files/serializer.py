@@ -9,4 +9,16 @@ class FileMetadataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FileMetadata
-        fields = '__all__'
+        fields = (
+            'id',
+            'owner',
+            'name',
+            'extension',
+            'size_bytes',
+            'last_used',
+            'minio_key',
+            'created_at',
+            'updated_at',
+            'other',
+            'hash_data',
+        )

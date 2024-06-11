@@ -13,8 +13,8 @@ class FileMetadataQuestionAdmin(admin.ModelAdmin):
         'size_bytes',
         'last_used',
         'minio_key',
-        'other',
         'created_at',
         'updated_at',
+        'other',
         'hash_data',
     )
