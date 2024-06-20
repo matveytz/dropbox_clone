@@ -1,10 +1,10 @@
 from django.contrib import admin
 
-from .models import FileMetadata
+from .models import FileMetadata, FileMetadataStatus
 
 
 @admin.register(FileMetadata)
-class FileMetadataQuestionAdmin(admin.ModelAdmin):
+class FileMetadataAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'owner',
@@ -17,4 +17,14 @@ class FileMetadataQuestionAdmin(admin.ModelAdmin):
         'updated_at',
         'other',
         'hash_data',
+        'status',
+    )
+
+
+@admin.register(FileMetadataStatus)
+class FileMetadataStatusAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'title',
+        'description',
     )

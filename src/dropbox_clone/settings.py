@@ -9,13 +9,12 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
 from pathlib import Path
-from dotenv import load_dotenv
-import os
+import configparser
 
-if os.getenv("DOCKER_DEPLOY") is None:
-    load_dotenv()
+
+config = configparser.ConfigParser()  # создаём объекта парсера
+config.read("config.ini")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,12 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+SECRET_KEY = config['DJANGO']['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.environ.get("DEBUG", default=0))
+DEBUG = bool(config['MOD']['DEBUG'])
 
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS").split(" ")
+ALLOWED_HOSTS = config['DJANGO']['ALLOWED_HOSTS'].split(" ")
 
 # Application definition
 
@@ -82,12 +81,12 @@ WSGI_APPLICATION = 'dropbox_clone.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': os.getenv('DATABASE_ENGINE'),
-        'NAME': os.getenv('DATABASE_NAME'),
-        'USER': os.getenv('DATABASE_USER'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
-        'HOST': os.getenv('DATABASE_HOST'),
-        'PORT': os.getenv('DATABASE_PORT'),
+        'ENGINE': config['DATABASE']['ENGINE'],
+        'NAME': config['DATABASE']['NAME'],
+        'USER': config['DATABASE']['USER'],
+        'PASSWORD': config['DATABASE']['PASSWORD'],
+        'HOST': config['DATABASE']['HOST'],
+        'PORT': config['DATABASE']['PORT'],
     }
 }
 
@@ -133,8 +132,40 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# MinIO settings
-MINIO_ENDPOINT = os.getenv('MINIO_ENDPOINT')
-MINIO_ACCESS_KEY = os.getenv('MINIO_ACCESS_KEY')
-MINIO_SECRET_KEY = os.getenv('MINIO_SECRET_KEY')
-MINIO_DEFAULT_BUCKET = os.getenv('MINIO_DEFAULT_BUCKET')
+# MinIO
+MINIO_ENDPOINT = config['MINIO']['ENDPOINT']
+MINIO_ACCESS_KEY = config['MINIO']['ACCESS_KEY']
+MINIO_SECRET_KEY = config['MINIO']['SECRET_KEY']
+MINIO_DEFAULT_BUCKET = config['MINIO']['DEFAULT_BUCKET']
+
+# Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'console': {
+            'format': '%(name)-12s %(levelname)-8s %(message)s'
+        },
+        'file': {
+            'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
+        }
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'console'
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'formatter': 'file',
+            'filename': './logs/debug.log'
+        }
+    },
+    'loggers': {
+        '': {
+            'level': 'DEBUG',
+            'handlers': ['console', 'file']
+        }
+    }
+}
