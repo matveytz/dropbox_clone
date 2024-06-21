@@ -11,7 +11,7 @@ class WebhookHandler(ABC):
         if key is None:
             return self.default_handler(webhook_data)
         try:
-            return self.method_handle_mapping[key](webhook_data)
+            return self.method_handle_mapping[key](self, webhook_data)
         except KeyError:
             raise NotImplementedError
 

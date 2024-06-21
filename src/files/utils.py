@@ -4,10 +4,6 @@ from django.contrib.auth import get_user_model
 from enum import Enum
 import uuid
 
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from django.contrib.auth.models import User
-
 
 class BaseModel(models.Model):
     """
@@ -30,17 +26,13 @@ class FileMetadataStatusEnum(Enum):
     on_error = 'on_error', 'Some error with file (probably missing on storge backend)'
 
 
-def get_first_user_instance() -> "User":
+def get_default_filemetadata():
     """
-    Возвращает первого пользователя в таблице User.
+    Возвращает схему FileMetadata по умолчанию с первым пользователем в таблице User.
     Используется пока не настроена авторизация, для коректной работы с владельцами Filemetadata (owner)
     """
-    return get_user_model().objects.all().order_by('id').first()
-
-
-def get_default_filemetadata():
     return {
-        "owner": get_first_user_instance(),
+        "owner": get_user_model().objects.all().order_by('id').first(),
         "name": "default",
         "extension": "default",
         "size_bytes": 0,
