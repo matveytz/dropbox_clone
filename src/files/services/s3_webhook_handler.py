@@ -1,6 +1,7 @@
 from files.usecase.webhook_handler import WebhookHandler
 from files.services.filemetadata_repository import filemetadata_repository_factory
 from files.services.minio_facade import s3_factory
+from files.models import FileMetadataStatus,  FileMetadataStatusEnum
 
 from datetime import datetime, timezone
 from logging import getLogger
@@ -51,6 +52,7 @@ class MinIOWebhookService(WebhookHandler):
             minio_key = f"{webhook_data['api']['bucket']}/{file_name}{file_extension}"
             file_size_bytes = s3_service.get_file_size(file_name + file_extension, bucket)
             now = datetime.now(timezone.utc)
+            status = FileMetadataStatus.get_or_create_status(FileMetadataStatusEnum.loaded)
         except KeyError:
             logger.error(f"Invalid event data: {webhook_data}")
             raise
@@ -62,7 +64,7 @@ class MinIOWebhookService(WebhookHandler):
             hash_data=file_hash,
             minio_key=minio_key,
             updated_at=now,
-            last_used=now,
+            status=status,
         )
 
     method_handle_mapping = {

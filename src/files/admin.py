@@ -11,7 +11,6 @@ class FileMetadataAdmin(admin.ModelAdmin):
         'name',
         'extension',
         'size_bytes',
-        'last_used',
         'minio_key',
         'created_at',
         'updated_at',

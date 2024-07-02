@@ -1,22 +1,48 @@
 from django.db import models
 from django.conf import settings
 
-from .utils import BaseModel, FileMetadataStatusEnum
+from enum import Enum
+import uuid
+
+
+class FileMetadataStatusEnum(Enum):
+    """
+    Перечисления для статуса FileMetadata
+    формат: title = description
+    """
+    untracked = 'File not tracked on storage backend'
+    loaded = 'File load and exsist on storage backend'
+    deleted = 'File exsist, but not tracked on storage backend'
+    on_error = 'Some error with file (probably missing on storge backend)'
+
+
+class BaseModel(models.Model):
+    """
+    Базовая модель для таблиц с первичным ключом типа UUID
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+
+    class Meta:
+        abstract = True
 
 
 class FileMetadataStatus(models.Model):
-    title = models.CharField(max_length=32)
+    title = models.CharField(
+        max_length=32,
+        unique=True,
+        choices=[(k, f.value) for k, f in FileMetadataStatusEnum._member_map_.items()],
+    )
     description = models.CharField()
 
     @classmethod
-    def get_default_pk(cls):
+    def get_default_pk(cls) -> "FileMetadataStatus":
         return cls.get_or_create_status(FileMetadataStatusEnum.untracked)
 
     @classmethod
-    def get_or_create_status(cls, status: FileMetadataStatusEnum):
+    def get_or_create_status(cls, status: FileMetadataStatusEnum) -> "FileMetadataStatus":
         result, created = cls.objects.get_or_create(
-            title=status.value[0],
-            defaults=dict(description=status.value[1]),
+            title=status.name,
+            defaults=dict(description=status.value),
         )
         return result
 
@@ -34,7 +60,6 @@ class FileMetadata(BaseModel):
     size_bytes = models.PositiveBigIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    last_used = models.DateTimeField(auto_now_add=True)
     hash_data = models.CharField(max_length=256)
     minio_key = models.CharField()
     other = models.JSONField(default=list)

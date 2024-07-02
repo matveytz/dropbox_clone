@@ -11,10 +11,7 @@ class FileMetadataStatusSerializer(serializers.ModelSerializer):
 
 class FileMetadataSerializer(serializers.ModelSerializer):
     owner = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-
-    def update(self, instance, validated_data):
-        print("update")
-        return super().update(instance, validated_data)
+    status = serializers.SlugRelatedField(read_only=True, slug_field='title')
 
     class Meta:
         model = FileMetadata
@@ -24,7 +21,6 @@ class FileMetadataSerializer(serializers.ModelSerializer):
             'name',
             'extension',
             'size_bytes',
-            'last_used',
             'minio_key',
             'created_at',
             'updated_at',
@@ -36,7 +32,6 @@ class FileMetadataSerializer(serializers.ModelSerializer):
             'id',
             'owner',
             'size_bytes',
-            'last_used',
             'minio_key',
             'created_at',
             'updated_at',

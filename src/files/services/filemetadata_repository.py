@@ -1,6 +1,7 @@
+from django.contrib.auth import get_user_model
+
 from files.usecase.repository import AbstractRepository
 from files.models import FileMetadata
-from files.utils import get_default_filemetadata
 
 
 class FileMetadataRepository(AbstractRepository[FileMetadata]):
@@ -10,7 +11,15 @@ class FileMetadataRepository(AbstractRepository[FileMetadata]):
         Если нет kwargs, создается обьект по умолчанию
         """
         if not kwargs:
-            kwargs = get_default_filemetadata()
+            kwargs = {
+                "owner": get_user_model().objects.all().order_by('id').first(),
+                "name": "default",
+                "extension": "default",
+                "size_bytes": 0,
+                "hash_data": "default",
+                "minio_key": "default",
+                "other": [{}],
+            }
         return FileMetadata.objects.create(**kwargs)
 
     def get_one(self, pk: str) -> FileMetadata:

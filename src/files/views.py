@@ -3,15 +3,13 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 
-from .models import FileMetadata
+from .models import FileMetadata, FileMetadataStatusEnum
 from .serializer import FileMetadataSerializer
-from .utils import FileMetadataStatusEnum
 from .services.minio_facade import s3_factory
 from .services.s3_webhook_handler import webhook_service_factory
 from .services.filemetadata_repository import filemetadata_repository_factory
 
 from logging import getLogger
-from datetime import datetime, timezone
 import json
 from typing import TYPE_CHECKING, Callable
 if TYPE_CHECKING:
@@ -47,7 +45,6 @@ class FileMetadataViewSet(
         url = s3_service.get_file_download_url(pk, instance.get_filename())
         if url is None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        FileMetadata.objects.filter(id=pk).update(last_used=datetime.now(timezone.utc))
         return Response(data={'url': url}, status=status.HTTP_200_OK)
 
     @action(methods=['get'], detail=False, permission_classes=())
