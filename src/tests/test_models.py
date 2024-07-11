@@ -1,6 +1,8 @@
 import pytest # noqa: F401, E261
 
-from files.models import FileMetadata
+from files.models import FileMetadata, FileMetadataStatus
+from files.enums import FileMetadataStatusEnum
+from files.constants import DEFAULT_FILEMETADATA_STATUS
 
 from uuid import UUID
 
@@ -69,4 +71,41 @@ class TestFileMetadata:
     def test_filemetadata_get_filename(self, filemetadata: FileMetadata, filemetadata_schema):
         filename = filemetadata.get_filename()
         filename_example = filemetadata_schema['name'] + filemetadata_schema['extension']
+
         assert filename == filename_example
+
+    def test_filemetadata_update_status_not_change(self, filemetadata: FileMetadata):
+        status_enum_instance = FileMetadataStatusEnum[filemetadata.status.title]
+        old_status_pk = filemetadata.status.pk
+        old_status_title = filemetadata.status.title
+
+        filemetadata.update_status(status=status_enum_instance)
+
+        assert old_status_pk == filemetadata.status.pk
+        assert old_status_title == filemetadata.status.title
+
+    def test_filemetadata_update_status_changed(self, filemetadata: FileMetadata):
+        status_enum_instance = FileMetadataStatusEnum[filemetadata.status.title]
+        old_status_pk = filemetadata.status.pk
+        old_status_title = filemetadata.status.title
+        new_status = FileMetadataStatusEnum.deleted
+        if new_status == status_enum_instance:
+            new_status = FileMetadataStatusEnum.loaded
+
+        filemetadata.update_status(status=new_status)
+
+        assert old_status_pk != filemetadata.status.pk
+        assert old_status_title != filemetadata.status.title
+
+    @pytest.mark.django_db
+    def test_filemetadata_status_get_defult(self):
+        status = FileMetadataStatus.get_default_status()
+        assert status.title == DEFAULT_FILEMETADATA_STATUS.name
+        assert status.description == DEFAULT_FILEMETADATA_STATUS.value
+
+    @pytest.mark.django_db
+    def test_filemetadata_status_get_or_create_status(self):
+        for instance in FileMetadataStatusEnum:
+            status = FileMetadataStatus.get_or_create_status(instance)
+            assert status.title == instance.name
+            assert status.description == instance.value

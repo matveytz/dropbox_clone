@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 
 from .enums import FileMetadataStatusEnum
+from .constants import DEFAULT_FILEMETADATA_STATUS
 
 import uuid
 
@@ -25,8 +26,8 @@ class FileMetadataStatus(models.Model):
     description = models.CharField()
 
     @classmethod
-    def get_default_pk(cls) -> "FileMetadataStatus":
-        return cls.get_or_create_status(FileMetadataStatusEnum.untracked)
+    def get_default_status(cls) -> "FileMetadataStatus":
+        return cls.get_or_create_status(DEFAULT_FILEMETADATA_STATUS)
 
     @classmethod
     def get_or_create_status(cls, status: FileMetadataStatusEnum) -> "FileMetadataStatus":
@@ -56,7 +57,7 @@ class FileMetadata(BaseModel):
     status = models.ForeignKey(
         to=FileMetadataStatus,
         on_delete=models.PROTECT,
-        default=FileMetadataStatus.get_default_pk
+        default=FileMetadataStatus.get_default_status
     )
 
     def update_status(self, status: FileMetadataStatusEnum):

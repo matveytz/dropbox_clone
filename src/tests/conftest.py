@@ -3,7 +3,7 @@ import pytest
 from django.contrib.auth import get_user_model
 
 from files.models import FileMetadata
-from .utils import _drop_database
+from tests.utils import _drop_database
 
 from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
@@ -12,11 +12,9 @@ if TYPE_CHECKING:
 
 # INITIAL
 
-#
-
 # Database
 @pytest.fixture(scope='session')
-def django_db_modify_db_settings(django_db_modify_db_settings):
+def django_db_modify_db_settings():
     from django.conf import settings
 
     settings.DATABASES['default']['USER'] = 'testuser'
@@ -29,9 +27,9 @@ def django_db_modify_db_settings(django_db_modify_db_settings):
 def django_db_setup(
     request,
     django_db_blocker,
-    superuser_schema,
     django_db_modify_db_settings,
     user_schema,
+    superuser_schema,
     filemetadata_schema,
 ):
     """Override top level fixture to ensure test databases are available"""
@@ -43,7 +41,7 @@ def django_db_setup(
     with django_db_blocker.unblock():
 
         # drop old test database
-        _drop_database(**settings.DATABASES['default'])
+        _drop_database(**(settings.DATABASES['default']))
 
         # setup and migrate
         setup_databases(

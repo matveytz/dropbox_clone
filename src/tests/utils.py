@@ -1,8 +1,7 @@
-import psycopg2
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-
-
 def _drop_database(**connection_params):
+    import psycopg2
+    from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+
     database_name = 'test_' + connection_params['NAME']
     conn = psycopg2.connect(
         database='postgres',
