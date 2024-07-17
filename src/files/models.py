@@ -8,6 +8,11 @@ import uuid
 
 
 class BaseModel(models.Model):
+    class Meta:
+        abstract = True
+
+
+class BaseModelWithUUID(BaseModel):
     """
     Базовая модель для таблиц с первичным ключом типа UUID
     """
@@ -17,7 +22,16 @@ class BaseModel(models.Model):
         abstract = True
 
 
-class FileMetadataStatus(models.Model):
+class FileMetadataStatusManager(models.Manager):
+
+    def get_status(self, status: FileMetadataStatusEnum) -> 'FileMetadataStatus':
+        return self.get_queryset().filter(title=status.name).get()
+
+    def get_default_status(self) -> 'FileMetadataStatus':
+        return self.get_status(status=DEFAULT_FILEMETADATA_STATUS)
+
+
+class FileMetadataStatus(BaseModel):
     title = models.CharField(
         max_length=32,
         unique=True,
@@ -25,23 +39,22 @@ class FileMetadataStatus(models.Model):
     )
     description = models.CharField()
 
-    @classmethod
-    def get_default_status(cls) -> "FileMetadataStatus":
-        return cls.get_or_create_status(DEFAULT_FILEMETADATA_STATUS)
-
-    @classmethod
-    def get_or_create_status(cls, status: FileMetadataStatusEnum) -> "FileMetadataStatus":
-        result, created = cls.objects.get_or_create(
-            title=status.name,
-            defaults=dict(description=status.value),
-        )
-        return result
+    objects: FileMetadataStatusManager = FileMetadataStatusManager()
 
     def __str__(self) -> str:
         return f'{self.pk}: {self.description}'
 
 
-class FileMetadata(BaseModel):
+class FileMetadataManager(models.Manager):
+
+    def update_status(self, status: FileMetadataStatusEnum, **filters) -> 'models.QuerySet[FileMetadata]':
+        queryset = self.get_queryset().filter(**filters)
+        new_status = FileMetadataStatus.objects.get_status(status)
+        queryset.update(status=new_status)
+        return queryset
+
+
+class FileMetadata(BaseModelWithUUID):
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -57,12 +70,10 @@ class FileMetadata(BaseModel):
     status = models.ForeignKey(
         to=FileMetadataStatus,
         on_delete=models.PROTECT,
-        default=FileMetadataStatus.get_default_status
+        default=FileMetadataStatus.objects.get_default_status
     )
 
-    def update_status(self, status: FileMetadataStatusEnum):
-        self.status = FileMetadataStatus.get_or_create_status(status)
-        self.save()
+    objects: FileMetadataManager = FileMetadataManager()
 
     def get_filename(self) -> str:
         return f'{self.name}{self.extension}'

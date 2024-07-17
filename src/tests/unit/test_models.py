@@ -79,7 +79,7 @@ class TestFileMetadata:
         old_status_pk = filemetadata.status.pk
         old_status_title = filemetadata.status.title
 
-        filemetadata.update_status(status=status_enum_instance)
+        FileMetadata.objects.update_status(id=filemetadata.pk, status=status_enum_instance)
 
         assert old_status_pk == filemetadata.status.pk
         assert old_status_title == filemetadata.status.title
@@ -92,20 +92,20 @@ class TestFileMetadata:
         if new_status == status_enum_instance:
             new_status = FileMetadataStatusEnum.loaded
 
-        filemetadata.update_status(status=new_status)
+        new_filemetadata = FileMetadata.objects.update_status(id=filemetadata.pk, status=new_status).get()
 
-        assert old_status_pk != filemetadata.status.pk
-        assert old_status_title != filemetadata.status.title
+        assert old_status_pk != new_filemetadata.status.pk
+        assert old_status_title != new_filemetadata.status.title
 
     @pytest.mark.django_db
     def test_filemetadata_status_get_defult(self):
-        status = FileMetadataStatus.get_default_status()
+        status = FileMetadataStatus.objects.get_default_status()
         assert status.title == DEFAULT_FILEMETADATA_STATUS.name
         assert status.description == DEFAULT_FILEMETADATA_STATUS.value
 
     @pytest.mark.django_db
-    def test_filemetadata_status_get_or_create_status(self):
+    def test_filemetadata_status_get_status(self):
         for instance in FileMetadataStatusEnum:
-            status = FileMetadataStatus.get_or_create_status(instance)
+            status = FileMetadataStatus.objects.get_status(instance)
             assert status.title == instance.name
             assert status.description == instance.value

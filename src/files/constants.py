@@ -8,3 +8,11 @@ MIN_FILE_SIZE = 10
 MAX_FILE_SIZE = 512*1024*1024
 MINIO_DEBAG_URL = 'http://localhost:9000'
 DEFAULT_FILEMETADATA_STATUS = FileMetadataStatusEnum.untracked
+DEFAULT_FILEMETADATA_SCHEMA = {
+    "name": "default",
+    "extension": "default",
+    "size_bytes": 0,
+    "hash_data": "default",
+    "minio_key": "default",
+    "other": [{}],
+}

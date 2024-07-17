@@ -15,5 +15,5 @@ class AbstractRepository(abc.ABC, Generic[T]):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def update_one(sself, pk: str, **kwargs) -> T:
+    def update_one(self, pk: str, **kwargs) -> T:
         raise NotImplementedError

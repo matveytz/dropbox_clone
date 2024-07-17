@@ -13,11 +13,7 @@ from files.constants import (
 )
 
 from datetime import timedelta, datetime, timezone
-from logging import getLogger
 import urllib3
-
-
-logger = getLogger(__name__)
 
 
 class MinIOFacade(AbstractS3):

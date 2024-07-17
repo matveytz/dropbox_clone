@@ -1,7 +1,7 @@
 from files.usecase.webhook_handler import WebhookHandler
 from files.services.filemetadata_repository import filemetadata_repository_factory
 from files.services.minio_facade import s3_factory
-from files.models import FileMetadataStatus,  FileMetadataStatusEnum
+from files.models import FileMetadataStatusEnum
 
 from datetime import datetime, timezone
 from logging import getLogger
@@ -42,7 +42,7 @@ class MinIOWebhookService(WebhookHandler):
         s3_service: "AbstractS3" = s3_factory(),
     ) -> None:
         """
-        Обработчик для PostPolicyBucket: пользователь загружает файл Post запросом на сервис MinIO.
+        Обработчик для PostPolicyBucket: пользователь загружает файл post запросом на сервис MinIO.
         Обновляет поля в Filemetadata.
         """
         try:
@@ -52,7 +52,7 @@ class MinIOWebhookService(WebhookHandler):
             minio_key = f"{webhook_data['api']['bucket']}/{file_name}{file_extension}"
             file_size_bytes = s3_service.get_file_size(file_name + file_extension, bucket)
             now = datetime.now(timezone.utc)
-            status = FileMetadataStatus.get_or_create_status(FileMetadataStatusEnum.loaded)
+            status = FileMetadataStatusEnum.loaded
         except KeyError:
             logger.error(f"Invalid event data: {webhook_data}")
             raise

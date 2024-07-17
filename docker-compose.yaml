@@ -49,4 +49,4 @@ services:
 volumes:
   db-data:
   pgadmin-data:
-  minio_storage:
+  # minio_storage:

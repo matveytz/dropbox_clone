@@ -1,16 +1,12 @@
 import abc
 
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from files.usecase.repository import AbstractRepository
-
 
 class AbstractS3(abc.ABC):
 
     @abc.abstractmethod
     def get_upload_policy(
         self,
-        filemetadata_repository: "AbstractRepository",
+        new_bucket: str,
     ) -> dict[str, str]:
         raise NotImplementedError
 
@@ -18,7 +14,7 @@ class AbstractS3(abc.ABC):
     def get_file_download_url(
         self,
         file_id: str,
-        filemetadata_repository: "AbstractRepository",
+        filename: str,
     ) -> str | None:
         raise NotImplementedError
 
