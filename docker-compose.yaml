@@ -1,0 +1,52 @@
+services:
+  db:
+    image: postgres:16
+    container_name: postgres_dropbox_clone
+    command: -p 1221
+    expose:
+      - 1221
+    env_file:
+      - .env
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+    env_file:
+      - .env
+    container_name: app_dropbox_clone
+    command: ["/dropbox_clone/docker/app.sh"]
+    ports:
+      - 9999:8000
+    depends_on:
+      - db
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    env_file:
+      - .env
+    ports:
+      - 11222:80
+    restart: always
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+  # minio:
+  #   image: minio/minio
+  #   container_name: minio
+  #   ports:
+  #     - "19000:9000"
+  #     - "19001:9001"
+  #   volumes:
+  #     - minio_storage:/mnt/minio/data
+  #   env_file:
+  #     - .env
+  #   command: server --console-address ":9001" /data
+
+volumes:
+  db-data:
+  pgadmin-data:
+  # minio_storage:
